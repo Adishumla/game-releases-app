@@ -23,7 +23,7 @@ export function GameList({
     games,
     changeMonth,
     currentMonth: activeMonth,
-    error,
+    /*     error,  */
   } = useGameData(initialGames, currentMonth);
   const [sortBy, setSortBy] = useState<"release_date" | "popularity">(
     "release_date"
@@ -51,9 +51,9 @@ export function GameList({
     setSortBy(newSortBy);
   };
 
-  if (error) {
+  /*   if (error) {
     return <div className="text-center mt-8 text-red-600">{error}</div>;
-  }
+  } */
 
   return (
     <div>

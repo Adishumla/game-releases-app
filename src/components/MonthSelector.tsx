@@ -79,7 +79,7 @@ export function MonthSelector({
                 <Button
                   key={date.toISOString()}
                   onClick={() => handleMonthChange(date)}
-                  variant="ghost"
+                  variant="outline"
                   className={`justify-start ${
                     format(date, "yyyy-MM") === currentMonth
                       ? "bg-primary text-primary-foreground"

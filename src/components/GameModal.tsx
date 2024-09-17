@@ -27,7 +27,6 @@ export default function GameModal({
   onClose: () => void;
 }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [preloadedImages, setPreloadedImages] = useState<string[]>([]);
 
   const changeImage = useCallback(
     (direction: "next" | "prev") => {
@@ -48,16 +47,15 @@ export default function GameModal({
     gameDetails.background_image ||
     "/placeholder.png";
 
-  // Preload images
   useEffect(() => {
     const preload = async () => {
       const imagesToPreload = [
         currentImage,
         ...gameDetails.screenshots,
         gameDetails.background_image,
-      ].filter((img) => img);
+      ].filter((img): img is string => img !== null);
 
-      setPreloadedImages((prev) => [...prev, ...imagesToPreload]);
+      console.log("Preloaded images:", imagesToPreload);
     };
     preload();
   }, [currentImage, gameDetails.screenshots, gameDetails.background_image]);
