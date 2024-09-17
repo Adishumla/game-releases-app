@@ -19,7 +19,7 @@ export interface GameDetails extends Game {
   screenshots: string[];
   videos: {
     name: string;
-    preview: string;
+    preview: string | null;
     data: {
       480: string;
       max: string;
@@ -31,7 +31,47 @@ export interface GameDetails extends Game {
     domain: string | null;
     url: string;
   }[];
-  website: string;
+  website: string | null;
+}
+
+interface ApiResponse<T> {
+  results: T[];
+}
+
+interface ApiGameResponse {
+  id: number;
+  name: string;
+  released: string;
+  background_image: string | null;
+  metacritic: number | null;
+  added: number;
+  description_raw?: string;
+  platforms?: { platform: { name: string } }[];
+  genres?: { name: string }[];
+  stores?: {
+    store: {
+      id: number;
+      name: string;
+      domain: string | null;
+    };
+    url: string;
+  }[];
+  website?: string;
+}
+
+interface ApiScreenshotResponse {
+  results: { image: string }[];
+}
+
+interface ApiVideoResponse {
+  results: {
+    name: string;
+    preview: string | null;
+    data: {
+      480: string;
+      max: string;
+    };
+  }[];
 }
 
 export async function getLatestPopularGames(
@@ -55,11 +95,11 @@ export async function getLatestPopularGames(
     );
   }
 
-  const data = await response.json();
+  const data: ApiResponse<ApiGameResponse> = await response.json();
   console.log("Raw API response:", data);
 
   const popularGames = data.results
-    .map((game: any) => ({
+    .map((game) => ({
       id: game.id,
       name: game.name,
       released: game.released,
@@ -72,8 +112,7 @@ export async function getLatestPopularGames(
   console.log("Processed popular games:", popularGames);
 
   return popularGames.sort(
-    (a: Game, b: Game) =>
-      new Date(b.released).getTime() - new Date(a.released).getTime()
+    (a, b) => new Date(b.released).getTime() - new Date(a.released).getTime()
   );
 }
 
@@ -92,7 +131,7 @@ export async function getGameDetails(id: number): Promise<GameDetails> {
       );
     }
 
-    const gameData = await gameResponse.json();
+    const gameData: ApiGameResponse = await gameResponse.json();
     console.log("Game data received:", gameData);
 
     // Fetch screenshots
@@ -104,7 +143,8 @@ export async function getGameDetails(id: number): Promise<GameDetails> {
         `Failed to fetch screenshots: ${screenshotsResponse.status} ${screenshotsResponse.statusText}`
       );
     }
-    const screenshotsData = await screenshotsResponse.json();
+    const screenshotsData: ApiScreenshotResponse =
+      await screenshotsResponse.json();
 
     // Fetch videos
     const videosResponse = await fetch(
@@ -115,11 +155,10 @@ export async function getGameDetails(id: number): Promise<GameDetails> {
         `Failed to fetch videos: ${videosResponse.status} ${videosResponse.statusText}`
       );
     }
-    const videosData = await videosResponse.json();
+    const videosData: ApiVideoResponse = await videosResponse.json();
 
-    // Process stores directly from gameData
     const stores =
-      gameData.stores?.map((storeData: any) => ({
+      gameData.stores?.map((storeData) => ({
         id: storeData.store.id,
         name: storeData.store.name || "Unknown Store",
         domain: storeData.store.domain || null,
@@ -135,19 +174,18 @@ export async function getGameDetails(id: number): Promise<GameDetails> {
       metacritic: gameData.metacritic || null,
       added: gameData.added || 0,
       platforms:
-        gameData.platforms?.map((p: any) => p.platform?.name).filter(Boolean) ||
-        [],
-      genres: gameData.genres?.map((g: any) => g.name).filter(Boolean) || [],
+        gameData.platforms?.map((p) => p.platform?.name).filter(Boolean) || [],
+      genres: gameData.genres?.map((g) => g.name).filter(Boolean) || [],
       screenshots:
-        screenshotsData.results?.map((s: any) => s.image).filter(Boolean) || [],
+        screenshotsData.results?.map((s) => s.image).filter(Boolean) || [],
       videos:
         videosData.results
-          ?.map((v: any) => ({
+          .map((v) => ({
             name: v.name || "Untitled",
             preview: v.preview || null,
             data: v.data || {},
           }))
-          .filter((v: any) => v.data.max) || [],
+          .filter((v) => v.data.max) || [],
       stores: stores,
       website: gameData.website || null,
     };
