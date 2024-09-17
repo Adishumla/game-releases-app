@@ -20,7 +20,7 @@ interface GameDetails extends Game {
   platforms: string[];
   genres: string[];
   screenshots: string[];
-  website: string;
+  website: string | null;
 }
 
 export function GameCard({ game }: { game: Game }) {

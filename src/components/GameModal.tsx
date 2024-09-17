@@ -14,7 +14,7 @@ interface GameDetails {
   platforms: string[];
   genres: string[];
   screenshots: string[];
-  website: string;
+  website: string | null;
 }
 
 export default function GameModal({

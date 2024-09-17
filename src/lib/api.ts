@@ -134,7 +134,6 @@ export async function getGameDetails(id: number): Promise<GameDetails> {
     const gameData: ApiGameResponse = await gameResponse.json();
     console.log("Game data received:", gameData);
 
-    // Fetch screenshots
     const screenshotsResponse = await fetch(
       `${API_URL}/games/${id}/screenshots?key=${API_KEY}`
     );
@@ -146,7 +145,6 @@ export async function getGameDetails(id: number): Promise<GameDetails> {
     const screenshotsData: ApiScreenshotResponse =
       await screenshotsResponse.json();
 
-    // Fetch videos
     const videosResponse = await fetch(
       `${API_URL}/games/${id}/movies?key=${API_KEY}`
     );
