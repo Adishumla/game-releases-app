@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -27,16 +27,17 @@ export default function GameModal({
   onClose: () => void;
 }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [preloadedImages, setPreloadedImages] = useState<string[]>([]);
 
   const changeImage = useCallback(
     (direction: "next" | "prev") => {
       const totalImages = gameDetails.screenshots.length;
       setCurrentImageIndex((prevIndex) => {
-        if (direction === "next") {
-          return (prevIndex + 1) % totalImages;
-        } else {
-          return (prevIndex - 1 + totalImages) % totalImages;
-        }
+        const newIndex =
+          direction === "next"
+            ? (prevIndex + 1) % totalImages
+            : (prevIndex - 1 + totalImages) % totalImages;
+        return newIndex;
       });
     },
     [gameDetails.screenshots.length]
@@ -46,6 +47,20 @@ export default function GameModal({
     gameDetails.screenshots[currentImageIndex] ||
     gameDetails.background_image ||
     "/placeholder.png";
+
+  // Preload images
+  useEffect(() => {
+    const preload = async () => {
+      const imagesToPreload = [
+        currentImage,
+        ...gameDetails.screenshots,
+        gameDetails.background_image,
+      ].filter((img) => img);
+
+      setPreloadedImages((prev) => [...prev, ...imagesToPreload]);
+    };
+    preload();
+  }, [currentImage, gameDetails.screenshots, gameDetails.background_image]);
 
   return (
     <div

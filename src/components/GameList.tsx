@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useTransition, useState } from "react";
+import React, { useMemo, useTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GameCard } from "@/src/components/GameCard";
 import { MonthSelector } from "@/src/components/MonthSelector";
@@ -23,6 +23,7 @@ export function GameList({
     games,
     changeMonth,
     currentMonth: activeMonth,
+    error,
   } = useGameData(initialGames, currentMonth);
   const [sortBy, setSortBy] = useState<"release_date" | "popularity">(
     "release_date"
@@ -50,6 +51,10 @@ export function GameList({
     setSortBy(newSortBy);
   };
 
+  if (error) {
+    return <div className="text-center mt-8 text-red-600">{error}</div>;
+  }
+
   return (
     <div>
       <div className="mb-6 flex text-black flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
@@ -61,15 +66,14 @@ export function GameList({
         <SortSelect value={sortBy} onValueChange={handleSort} />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {sortedGames.map((game) => (
-          <GameCard key={game.id} game={game} />
-        ))}
+        {sortedGames.length > 0 ? (
+          sortedGames.map((game) => <GameCard key={game.id} game={game} />)
+        ) : (
+          <p className="text-center mt-8">
+            No games found for the selected month.
+          </p>
+        )}
       </div>
-      {sortedGames.length === 0 && (
-        <p className="text-center mt-8">
-          No games found for the selected month.
-        </p>
-      )}
     </div>
   );
 }

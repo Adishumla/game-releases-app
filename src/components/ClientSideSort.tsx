@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -16,7 +16,6 @@ interface Game {
   name: string;
   released: string;
   added: number;
-  // Add other properties as needed
 }
 
 interface ClientSideSortProps {

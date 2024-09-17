@@ -11,7 +11,7 @@ export async function GET(
 
   try {
     const response = await fetch(`${API_URL}/games/${id}?key=${API_KEY}`, {
-      next: { revalidate: 3600 }, // Revalidate every hour
+      next: { revalidate: 3600 }, // 1 hour
     });
 
     if (!response.ok) {

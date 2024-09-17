@@ -45,7 +45,7 @@ export async function getLatestPopularGames(
   console.log("Fetching games from URL:", url);
 
   const response = await fetch(url, {
-    next: { revalidate: 86400 }, // Revalidate every 24 hours
+    next: { revalidate: 86400 }, // 24 hours
   });
 
   if (!response.ok) {

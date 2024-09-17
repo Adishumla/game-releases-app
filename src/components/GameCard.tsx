@@ -34,7 +34,6 @@ export function GameCard({ game }: { game: Game }) {
     : "TBA";
 
   useEffect(() => {
-    // Prefetch game details
     getGameDetails(game.id)
       .then(setGameDetails)
       .catch((err) => {
