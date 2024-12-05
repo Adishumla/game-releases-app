@@ -31,7 +31,7 @@ export function GameList({
   const sortedGames = useMemo(() => {
     return [...games].sort((a, b) => {
       if (sortBy === "release_date") {
-        return new Date(b.released).getTime() - new Date(a.released).getTime();
+        return new Date(a.released).getTime() - new Date(b.released).getTime();
       } else {
         return b.added - a.added;
       }
