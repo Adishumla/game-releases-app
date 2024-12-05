@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useMemo, useTransition, useState } from "react";
+import React, { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { GameCard } from "@/src/components/GameCard";
 import { MonthSelector } from "@/src/components/MonthSelector";
 import { SortSelect } from "@/src/components/ui/sort-select";
-import { useGameData } from "@/src/hooks/useGameData";
 import { Game } from "@/src/lib/api";
 import { format } from "date-fns";
 
@@ -19,15 +18,14 @@ export function GameList({
   currentMonth = format(new Date(), "yyyy-MM"),
 }: GameListProps) {
   const router = useRouter();
-  const {
-    games,
-    changeMonth,
-    currentMonth: activeMonth,
-    /*     error,  */
-  } = useGameData(initialGames, currentMonth);
+
+  const [games] = useState(initialGames);
+  const [activeMonth, setActiveMonth] = useState(currentMonth);
+
   const [sortBy, setSortBy] = useState<"release_date" | "popularity">(
     "release_date"
   );
+
   const [isPending, startTransition] = useTransition();
 
   const sortedGames = useMemo(() => {
@@ -42,7 +40,8 @@ export function GameList({
 
   const handleMonthChange = (newMonth: string) => {
     startTransition(() => {
-      changeMonth(newMonth);
+      setActiveMonth(newMonth);
+
       router.push(`/?month=${newMonth}`, { scroll: false });
     });
   };
@@ -50,10 +49,6 @@ export function GameList({
   const handleSort = (newSortBy: "release_date" | "popularity") => {
     setSortBy(newSortBy);
   };
-
-  /*   if (error) {
-    return <div className="text-center mt-8 text-red-600">{error}</div>;
-  } */
 
   return (
     <div>
@@ -65,6 +60,7 @@ export function GameList({
         />
         <SortSelect value={sortBy} onValueChange={handleSort} />
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {sortedGames.length > 0 ? (
           sortedGames.map((game) => <GameCard key={game.id} game={game} />)

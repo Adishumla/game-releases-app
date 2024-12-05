@@ -1,15 +1,16 @@
 import { Suspense } from "react";
 import { getLatestPopularGames } from "@/src/lib/api";
 import { GameList } from "@/src/components/GameList";
+import { format } from "date-fns";
 
-export const revalidate = 86400; // Revalidate every 24 hours (86400 seconds)
+export const revalidate = 86400;
 
 export default async function Home({
   searchParams,
 }: {
   searchParams: { month?: string };
 }) {
-  const currentMonth = searchParams.month || undefined;
+  const currentMonth = searchParams.month || format(new Date(), "yyyy-MM");
   const initialGames = await getLatestPopularGames(currentMonth);
 
   return (
