@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
-interface GameDetails {
+interface FullGame {
   id: number;
   name: string;
   released: string;
@@ -15,6 +15,7 @@ interface GameDetails {
   genres: string[];
   screenshots: string[];
   website: string | null;
+  added: number;
 }
 
 export default function GameModal({
@@ -22,7 +23,7 @@ export default function GameModal({
   formattedDate,
   onClose,
 }: {
-  gameDetails: GameDetails;
+  gameDetails: FullGame;
   formattedDate: string;
   onClose: () => void;
 }) {
@@ -46,19 +47,6 @@ export default function GameModal({
     gameDetails.screenshots[currentImageIndex] ||
     gameDetails.background_image ||
     "/placeholder.png";
-
-  useEffect(() => {
-    const preload = async () => {
-      const imagesToPreload = [
-        currentImage,
-        ...gameDetails.screenshots,
-        gameDetails.background_image,
-      ].filter((img): img is string => img !== null);
-
-      console.log("Preloaded images:", imagesToPreload);
-    };
-    preload();
-  }, [currentImage, gameDetails.screenshots, gameDetails.background_image]);
 
   return (
     <div
@@ -108,7 +96,7 @@ export default function GameModal({
           </h2>
           <p className="text-gray-700 mb-4">Released: {formattedDate}</p>
           <p className="text-gray-800 mb-4">{gameDetails.description}</p>
-          {gameDetails.platforms && (
+          {gameDetails.platforms?.length > 0 && (
             <div className="mb-4">
               <h3 className="font-semibold mb-1 text-gray-900">Platforms:</h3>
               <p className="text-gray-700">
@@ -116,7 +104,7 @@ export default function GameModal({
               </p>
             </div>
           )}
-          {gameDetails.genres && (
+          {gameDetails.genres?.length > 0 && (
             <div className="mb-4">
               <h3 className="font-semibold mb-1 text-gray-900">Genres:</h3>
               <p className="text-gray-700">{gameDetails.genres.join(", ")}</p>

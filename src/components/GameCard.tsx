@@ -1,21 +1,18 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { format } from "date-fns";
-import { getGameDetails } from "@/src/lib/api";
 import GameModal from "./GameModal";
 
-interface Game {
+interface FullGame {
   id: number;
   name: string;
   released: string;
   background_image: string | null;
   metacritic: number | null;
-}
-
-interface GameDetails extends Game {
+  added: number;
   description: string;
   platforms: string[];
   genres: string[];
@@ -23,24 +20,16 @@ interface GameDetails extends Game {
   website: string | null;
 }
 
-export function GameCard({ game }: { game: Game }) {
+export function GameCard({ game }: { game: FullGame }) {
   const [imageLoading, setImageLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-  const [gameDetails, setGameDetails] = useState<GameDetails | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-  const formattedDate = game.released
-    ? format(new Date(game.released), "MMMM d, yyyy")
+  const releaseDate = game.released ? new Date(game.released) : null;
+  const isValidDate =
+    releaseDate instanceof Date && !isNaN(releaseDate.getTime());
+  const formattedDate = isValidDate
+    ? format(releaseDate, "MMMM d, yyyy")
     : "TBA";
-
-  useEffect(() => {
-    getGameDetails(game.id)
-      .then(setGameDetails)
-      .catch((err) => {
-        console.error("Failed to fetch game details:", err);
-        setError("Failed to load game details");
-      });
-  }, [game.id]);
 
   const handleCardClick = useCallback(() => {
     setModalVisible(true);
@@ -77,7 +66,6 @@ export function GameCard({ game }: { game: Game }) {
                     e
                   );
                   setImageLoading(false);
-                  setError("Failed to load image");
                 }}
                 loading="lazy"
                 quality={75}
@@ -102,13 +90,12 @@ export function GameCard({ game }: { game: Game }) {
               Metacritic: {game.metacritic}
             </p>
           )}
-          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
         </CardContent>
       </Card>
 
-      {modalVisible && gameDetails && (
+      {modalVisible && (
         <GameModal
-          gameDetails={gameDetails}
+          gameDetails={game}
           formattedDate={formattedDate}
           onClose={handleCloseModal}
         />
