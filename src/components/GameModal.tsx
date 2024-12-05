@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
-interface FullGame {
+interface GameDetails {
   id: number;
   name: string;
   released: string;
@@ -21,16 +21,21 @@ interface FullGame {
 export default function GameModal({
   gameDetails,
   formattedDate,
+  loading,
+  error,
   onClose,
 }: {
-  gameDetails: FullGame;
+  gameDetails: GameDetails | null;
   formattedDate: string;
+  loading: boolean;
+  error: string | null;
   onClose: () => void;
 }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const changeImage = useCallback(
     (direction: "next" | "prev") => {
+      if (!gameDetails || !gameDetails.screenshots) return;
       const totalImages = gameDetails.screenshots.length;
       setCurrentImageIndex((prevIndex) => {
         const newIndex =
@@ -40,8 +45,43 @@ export default function GameModal({
         return newIndex;
       });
     },
-    [gameDetails.screenshots.length]
+    [gameDetails]
   );
+
+  if (loading && !gameDetails && !error) {
+    return (
+      <div
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+        onClick={onClose}
+      >
+        <div
+          className="bg-white rounded-lg p-6 max-w-md w-full"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h2 className="text-xl font-bold mb-4">Loading...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && !gameDetails) {
+    return (
+      <div
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+        onClick={onClose}
+      >
+        <div
+          className="bg-white rounded-lg p-6 max-w-md w-full"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h2 className="text-xl font-bold mb-4 text-red-600">Error</h2>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!gameDetails) return null;
 
   const currentImage =
     gameDetails.screenshots[currentImageIndex] ||
@@ -50,11 +90,11 @@ export default function GameModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 transition-opacity duration-300"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto transition-transform duration-300 scale-100"
+        className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative aspect-video">
@@ -65,7 +105,7 @@ export default function GameModal({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover rounded-t-lg"
             priority
-            quality={85}
+            quality={75}
           />
           <button
             onClick={onClose}

@@ -1,27 +1,21 @@
 import { NextResponse } from "next/server";
+import { getGameDetails } from "@/src/lib/api";
 
-const API_KEY = process.env.RAWG_API_KEY;
-const API_URL = "https://api.rawg.io/api";
+export const revalidate = 86400; // Cache details for 24 hours
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const id = params.id;
+  const id = parseInt(params.id, 10);
+
+  if (isNaN(id)) {
+    return NextResponse.json({ error: "Invalid game ID" }, { status: 400 });
+  }
 
   try {
-    const response = await fetch(`${API_URL}/games/${id}?key=${API_KEY}`, {
-      next: { revalidate: 3600 }, // 1 hour
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch game details: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const data = await response.json();
-    return NextResponse.json(data);
+    const details = await getGameDetails(id);
+    return NextResponse.json(details);
   } catch (error) {
     console.error("Error fetching game details:", error);
     return NextResponse.json(

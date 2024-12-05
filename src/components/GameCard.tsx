@@ -5,35 +5,57 @@ import Image from "next/image";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { format } from "date-fns";
 import GameModal from "./GameModal";
+import { Game } from "@/src/lib/api";
 
-interface FullGame {
+interface GameDetails {
   id: number;
   name: string;
   released: string;
   background_image: string | null;
   metacritic: number | null;
-  added: number;
   description: string;
   platforms: string[];
   genres: string[];
   screenshots: string[];
   website: string | null;
+  added: number;
 }
 
-export function GameCard({ game }: { game: FullGame }) {
+export function GameCard({ game }: { game: Game }) {
   const [imageLoading, setImageLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [gameDetails, setGameDetails] = useState<GameDetails | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const releaseDate = game.released ? new Date(game.released) : null;
-  const isValidDate =
-    releaseDate instanceof Date && !isNaN(releaseDate.getTime());
-  const formattedDate = isValidDate
-    ? format(releaseDate, "MMMM d, yyyy")
-    : "TBA";
+  const formattedDate = (() => {
+    const releaseDate = game.released ? new Date(game.released) : null;
+    const isValidDate =
+      releaseDate instanceof Date && !isNaN(releaseDate.getTime());
+    return isValidDate ? format(releaseDate, "MMMM d, yyyy") : "TBA";
+  })();
 
-  const handleCardClick = useCallback(() => {
+  const handleCardClick = useCallback(async () => {
     setModalVisible(true);
-  }, []);
+    if (!gameDetails && !isLoadingDetails) {
+      setIsLoadingDetails(true);
+      try {
+        const res = await fetch(`/api/game/${game.id}`, {
+          cache: "force-cache",
+        });
+        if (!res.ok) {
+          throw new Error("Failed to fetch game details");
+        }
+        const details: GameDetails = await res.json();
+        setGameDetails(details);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load game details");
+      } finally {
+        setIsLoadingDetails(false);
+      }
+    }
+  }, [game.id, gameDetails, isLoadingDetails]);
 
   const handleCloseModal = useCallback(() => {
     setModalVisible(false);
@@ -55,17 +77,17 @@ export function GameCard({ game }: { game: FullGame }) {
                 src={game.background_image}
                 alt={game.name}
                 fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className={`object-cover transition-opacity duration-300 ${
                   imageLoading ? "opacity-0" : "opacity-100"
                 }`}
-                onLoad={() => setImageLoading(false)}
+                onLoadingComplete={() => setImageLoading(false)}
                 onError={(e) => {
                   console.error(
                     `Failed to load image for game: ${game.name}`,
                     e
                   );
                   setImageLoading(false);
+                  setError("Failed to load image");
                 }}
                 loading="lazy"
                 quality={75}
@@ -90,13 +112,16 @@ export function GameCard({ game }: { game: FullGame }) {
               Metacritic: {game.metacritic}
             </p>
           )}
+          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
         </CardContent>
       </Card>
 
       {modalVisible && (
         <GameModal
-          gameDetails={game}
+          gameDetails={gameDetails}
           formattedDate={formattedDate}
+          loading={isLoadingDetails}
+          error={error}
           onClose={handleCloseModal}
         />
       )}

@@ -5,24 +5,11 @@ import { useRouter } from "next/navigation";
 import { GameCard } from "@/src/components/GameCard";
 import { MonthSelector } from "@/src/components/MonthSelector";
 import { SortSelect } from "@/src/components/ui/sort-select";
+import { Game } from "@/src/lib/api";
 import { format } from "date-fns";
 
-interface FullGame {
-  id: number;
-  name: string;
-  released: string;
-  background_image: string | null;
-  metacritic: number | null;
-  added: number;
-  description: string;
-  platforms: string[];
-  genres: string[];
-  screenshots: string[];
-  website: string | null;
-}
-
 interface GameListProps {
-  initialGames: FullGame[];
+  initialGames: Game[]; // Just the basic Game type
   currentMonth?: string;
 }
 
@@ -41,10 +28,10 @@ export function GameList({
   const sortedGames = useMemo(() => {
     return [...initialGames].sort((a, b) => {
       if (sortBy === "release_date") {
-        // Sort by earliest release first
+        // Sort oldest to newest
         return new Date(a.released).getTime() - new Date(b.released).getTime();
       } else {
-        // Sort by popularity (added) descending
+        // Sort by popularity descending
         return b.added - a.added;
       }
     });
@@ -53,7 +40,6 @@ export function GameList({
   const handleMonthChange = (newMonth: string) => {
     startTransition(() => {
       setActiveMonth(newMonth);
-      // This navigates to a new URL, triggering server-side fetch and ISR caching
       router.push(`/?month=${newMonth}`, { scroll: false });
     });
   };
