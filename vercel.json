@@ -3,9 +3,5 @@
     "api/warmup/route.ts": {
       "runtime": "edge"
     }
-  },
-  "cron": {
-    "schedule": "0 0 * * *",
-    "path": "/api/warmup"
   }
 }
