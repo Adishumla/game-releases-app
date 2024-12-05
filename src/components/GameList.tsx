@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useTransition } from "react";
+import React, { useMemo, useTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GameCard } from "@/src/components/GameCard";
 import { MonthSelector } from "@/src/components/MonthSelector";
@@ -19,13 +19,13 @@ export function GameList({
 }: GameListProps) {
   const router = useRouter();
 
-  const [games] = useState(initialGames);
-  const [activeMonth, setActiveMonth] = useState(currentMonth);
+  // No useState for games
+  const games = initialGames;
 
+  const [activeMonth, setActiveMonth] = useState(currentMonth);
   const [sortBy, setSortBy] = useState<"release_date" | "popularity">(
     "release_date"
   );
-
   const [isPending, startTransition] = useTransition();
 
   const sortedGames = useMemo(() => {
@@ -41,7 +41,6 @@ export function GameList({
   const handleMonthChange = (newMonth: string) => {
     startTransition(() => {
       setActiveMonth(newMonth);
-
       router.push(`/?month=${newMonth}`, { scroll: false });
     });
   };
