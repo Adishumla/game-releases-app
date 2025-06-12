@@ -21,6 +21,8 @@ interface GameDetails {
   added: number;
 }
 
+const detailsCache: Record<number, GameDetails> = {};
+
 export function GameCard({ game }: { game: Game }) {
   const [imageLoading, setImageLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -37,6 +39,12 @@ export function GameCard({ game }: { game: Game }) {
 
   const handleCardClick = useCallback(async () => {
     setModalVisible(true);
+
+    if (detailsCache[game.id]) {
+      setGameDetails(detailsCache[game.id]);
+      return;
+    }
+
     if (!gameDetails && !isLoadingDetails) {
       setIsLoadingDetails(true);
       try {
@@ -47,6 +55,7 @@ export function GameCard({ game }: { game: Game }) {
           throw new Error("Failed to fetch game details");
         }
         const details: GameDetails = await res.json();
+        detailsCache[game.id] = details;
         setGameDetails(details);
       } catch (err) {
         console.error(err);

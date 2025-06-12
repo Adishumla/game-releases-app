@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -32,6 +32,16 @@ export default function GameModal({
   onClose: () => void;
 }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Preload all screenshots once details are available for smoother navigation
+  useEffect(() => {
+    if (gameDetails?.screenshots) {
+      for (const src of gameDetails.screenshots) {
+        const img = new Image();
+        img.src = src;
+      }
+    }
+  }, [gameDetails]);
 
   const changeImage = useCallback(
     (direction: "next" | "prev") => {
