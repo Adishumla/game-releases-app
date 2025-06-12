@@ -6,6 +6,7 @@ import { GameCard } from "@/src/components/GameCard";
 import { MonthSelector } from "@/src/components/MonthSelector";
 import { SortSelect } from "@/src/components/ui/sort-select";
 import { Game } from "@/src/lib/api";
+import { useGameData } from "@/src/hooks/useGameData";
 import { format } from "date-fns";
 
 interface GameListProps {
@@ -18,15 +19,17 @@ export function GameList({
   currentMonth = format(new Date(), "yyyy-MM"),
 }: GameListProps) {
   const router = useRouter();
-
-  const [activeMonth, setActiveMonth] = useState(currentMonth);
+  const { games, changeMonth, currentMonth: activeMonth } = useGameData(
+    initialGames,
+    currentMonth
+  );
   const [sortBy, setSortBy] = useState<"release_date" | "popularity">(
     "release_date"
   );
   const [isPending, startTransition] = useTransition();
 
   const sortedGames = useMemo(() => {
-    return [...initialGames].sort((a, b) => {
+    return [...games].sort((a, b) => {
       if (sortBy === "release_date") {
         // Sort oldest to newest
         return new Date(a.released).getTime() - new Date(b.released).getTime();
@@ -35,11 +38,11 @@ export function GameList({
         return b.added - a.added;
       }
     });
-  }, [initialGames, sortBy]);
+  }, [games, sortBy]);
 
   const handleMonthChange = (newMonth: string) => {
     startTransition(() => {
-      setActiveMonth(newMonth);
+      changeMonth(newMonth);
       router.push(`/?month=${newMonth}`, { scroll: false });
     });
   };

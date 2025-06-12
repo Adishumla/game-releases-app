@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { getLatestPopularGames, Game } from "@/src/lib/api";
+import { Game } from "@/src/lib/api";
 import { format, addMonths, subMonths } from "date-fns";
 
 export function useGameData(initialGames: Game[], initialMonth: string) {
@@ -10,9 +10,17 @@ export function useGameData(initialGames: Game[], initialMonth: string) {
 
   const fetchGamesForMonth = useCallback(
     async (month: string) => {
-      if (!gameCache[month]) {
-        const games = await getLatestPopularGames(month);
+      if (gameCache[month]) return;
+
+      try {
+        const res = await fetch(`/api/games?month=${month}`);
+        if (!res.ok) {
+          throw new Error("Failed to fetch games for month " + month);
+        }
+        const games: Game[] = await res.json();
         setGameCache((prev) => ({ ...prev, [month]: games }));
+      } catch (err) {
+        console.error(err);
       }
     },
     [gameCache]
