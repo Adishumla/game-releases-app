@@ -163,6 +163,25 @@ export default function GameModal({
               </a>
             </div>
           )}
+          {gameDetails.stores?.length > 0 && (
+            <div className="mb-4">
+              <h3 className="font-semibold mb-1 text-gray-900">Where to Buy:</h3>
+              <ul className="list-disc pl-5 space-y-1">
+                {gameDetails.stores.map((store) => (
+                  <li key={store.id}>
+                    <a
+                      href={store.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      {store.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </div>
