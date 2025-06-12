@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { format, subMonths, addMonths } from "date-fns";
 
 export async function GET() {
+  const baseUrl = process.env.VERCEL_URL;
+  if (!baseUrl) {
+    console.log("Skipping warmup - VERCEL_URL not set");
+    return NextResponse.json({ status: "Warmup skipped" });
+  }
   const now = new Date();
   const monthsToWarm: string[] = [];
 
@@ -20,7 +25,7 @@ export async function GET() {
   console.log("Warming up the following months:", monthsToWarm);
 
   for (const month of monthsToWarm) {
-    const url = `https://${process.env.VERCEL_URL}/?month=${month}`;
+    const url = `https://${baseUrl}/?month=${month}`;
     const res = await fetch(url, { cache: "no-cache" });
 
     if (!res.ok) {
