@@ -3,20 +3,7 @@
 import React, { useCallback, useState } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
-
-interface GameDetails {
-  id: number;
-  name: string;
-  released: string;
-  background_image: string | null;
-  metacritic: number | null;
-  description: string;
-  platforms: string[];
-  genres: string[];
-  screenshots: string[];
-  website: string | null;
-  added: number;
-}
+import type { GameDetails } from "@/src/lib/api";
 
 export default function GameModal({
   gameDetails,

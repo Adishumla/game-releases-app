@@ -5,21 +5,7 @@ import Image from "next/image";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { format } from "date-fns";
 import GameModal from "./GameModal";
-import { Game } from "@/src/lib/api";
-
-interface GameDetails {
-  id: number;
-  name: string;
-  released: string;
-  background_image: string | null;
-  metacritic: number | null;
-  description: string;
-  platforms: string[];
-  genres: string[];
-  screenshots: string[];
-  website: string | null;
-  added: number;
-}
+import type { Game, GameDetails } from "@/src/lib/api";
 
 export function GameCard({ game }: { game: Game }) {
   const [imageLoading, setImageLoading] = useState(true);
