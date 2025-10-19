@@ -35,8 +35,7 @@ export function GameCard({ game }: { game: Game }) {
     return isValidDate ? format(releaseDate, "MMMM d, yyyy") : "TBA";
   })();
 
-  const handleCardClick = useCallback(async () => {
-    setModalVisible(true);
+  const loadGameDetails = useCallback(async () => {
     if (!gameDetails && !isLoadingDetails) {
       setIsLoadingDetails(true);
       try {
@@ -57,6 +56,11 @@ export function GameCard({ game }: { game: Game }) {
     }
   }, [game.id, gameDetails, isLoadingDetails]);
 
+  const handleCardClick = useCallback(async () => {
+    setModalVisible(true);
+    loadGameDetails();
+  }, [loadGameDetails]);
+
   const handleCloseModal = useCallback(() => {
     setModalVisible(false);
   }, []);
@@ -66,6 +70,8 @@ export function GameCard({ game }: { game: Game }) {
       <Card
         className="overflow-hidden relative group cursor-pointer transition-transform duration-200 hover:scale-105"
         onClick={handleCardClick}
+        onMouseEnter={loadGameDetails}
+        onFocus={loadGameDetails}
       >
         <div className="aspect-video relative">
           {game.background_image ? (
