@@ -43,10 +43,9 @@ export function MonthSelector({
   }, [selectedDate, handleMonthChange]);
 
   const monthOptions = useMemo(() => {
-    return Array.from({ length: 13 }, (_, i) => {
-      return subMonths(new Date(), i);
-    });
-  }, []);
+    const start = subMonths(selectedDate, 5);
+    return Array.from({ length: 12 }, (_, i) => addMonths(start, i));
+  }, [selectedDate]);
 
   return (
     <div className="flex items-center space-x-4 text-black">
