@@ -3,20 +3,7 @@
 import React, { useCallback, useState } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
-
-interface GameDetails {
-  id: number;
-  name: string;
-  released: string;
-  background_image: string | null;
-  metacritic: number | null;
-  description: string;
-  platforms: string[];
-  genres: string[];
-  screenshots: string[];
-  website: string | null;
-  added: number;
-}
+import type { GameDetails } from "@/src/lib/api";
 
 export default function GameModal({
   gameDetails,
@@ -161,6 +148,25 @@ export default function GameModal({
               >
                 {gameDetails.website}
               </a>
+            </div>
+          )}
+          {(gameDetails.stores?.length ?? 0) > 0 && (
+            <div className="mb-4">
+              <h3 className="font-semibold mb-1 text-gray-900">Where to Buy:</h3>
+              <ul className="list-disc pl-5 space-y-1">
+                {gameDetails.stores?.map((store) => (
+                  <li key={store.id}>
+                    <a
+                      href={store.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      {store.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </div>

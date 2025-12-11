@@ -25,7 +25,7 @@ export interface GameDetails extends Game {
       max: string;
     };
   }[];
-  stores: {
+  stores?: {
     id: number;
     name: string;
     domain: string | null;
